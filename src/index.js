@@ -21,8 +21,20 @@ fs.readFileAsync( platConfDir + "/platform.conf", "utf8" )
 	var platInfo 	= JSON.parse( data );
 	platformName 	= platInfo.platform;
 	
-	// Fetch board info loading function (Will use specific mechanism for this platform to load board info, like reading EEPROM storage)
-	LoadBoardInfo 	= require( path.resolve( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms/", platformName, "board.js" ) ).LoadInfo;
+	if( platformName == "" )
+	{
+		throw "No platform specified";
+	}
+	
+	return Promise.try( function()
+	{
+		// Fetch board info loading function (Will use specific mechanism for this platform to load board info, like reading EEPROM storage)
+		LoadBoardInfo 	= require( path.resolve( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms/", platformName, "board.js" ) ).LoadInfo;
+	} )
+	.catch( function( err )
+	{
+		throw Error( "Failed to load board.js for specified platform: " + platformName );
+	} );
 } )
 .then( function()
 {
@@ -92,8 +104,7 @@ fs.readFileAsync( platConfDir + "/platform.conf", "utf8" )
 } )
 .catch( function( err )
 {
-	console.log( "Error: " + JSON.stringify( err ) );
-	process.exit( 0 );
+	console.log( "Error: " + err.message );
 })
 .then( function()
 {
