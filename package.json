@@ -1,0 +1,35 @@
+{
+  "name": "orov-sysdetect",
+  "version": "1.0.0",
+  "description": "Node program that handles system detection and configuration for OpenROV platforms",
+  "main": "index.js",
+  
+  "scripts": 
+  {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  
+  "repository": 
+  {
+    "type": "git",
+    "url": "git+https://github.com/OpenROV-Dev/orov-sysdetect.git"
+  },
+  
+  "author": "Charles Cross",
+  "license": "ISC",
+  
+  "bugs": 
+  {
+    "url": "https://github.com/OpenROV-Dev/orov-sysdetect/issues"
+  },
+  
+  "homepage": "https://github.com/OpenROV-Dev/orov-sysdetect#readme",
+  
+  "dependencies": 
+  {
+    "mkdirp": "",
+    "ncp": "^2.0.0",
+    "rimraf": "^2.5.1",
+    "bluebird": "^3.4.1"
+  }
+}
