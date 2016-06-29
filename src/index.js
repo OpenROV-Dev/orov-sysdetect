@@ -3,6 +3,7 @@
 var Promise = require( "bluebird" );
 var fs     	= Promise.promisifyAll( require("fs") );
 var path	= require('path');
+var exec	= require( "child_process" ).exec;
 
 var platConfDir = path.resolve( __dirname + "/../config/" );
 
@@ -74,12 +75,20 @@ fs.readFileAsync( platConfDir + "/platform.conf", "utf8" )
 		return Installer.Install( installDir )
 				.then( function()
 				{
-					return fs.writeFileAsync( platConfDir + "/board.conf", JSON.stringify( board.info ) );
+					return fs.writeFileAsync( platConfDir + "/board.conf", JSON.stringify( board.info ) )
+							.then( function()
+							{
+								if( process.env.USE_MOCK != "true" )
+								{
+									// Reboot
+									exec( "/sbin/reboot", function(error, stdout, stderr){} );
+								}
+							});
 				})
 				.catch( function(err)
 				{
 					console.log( err );
-				})	
+				});
 	}
 	else
 	{
@@ -102,7 +111,15 @@ fs.readFileAsync( platConfDir + "/platform.conf", "utf8" )
 			})
 			.then( function()
 			{
-				return fs.writeFileAsync( platConfDir + "/board.conf", JSON.stringify( board.info ) );
+				return fs.writeFileAsync( platConfDir + "/board.conf", JSON.stringify( board.info ) )
+						.then( function()
+						{
+							if( process.env.USE_MOCK != "true" )
+							{
+								// Reboot
+								exec( "/sbin/reboot", function(error, stdout, stderr){} );
+							}
+						});
 			});
 		}
 	}
