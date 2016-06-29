@@ -73,9 +73,15 @@ fs.readFileAsync( platConfDir + "/platform.conf", "utf8" )
 		BoardInstaller = require( path.resolve( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms/", platformName, "boards/", board.info.productId, "install/Installer.js" ) );
 		
 		// Install board files
-		BoardInstaller.Install();
-		
-		return fs.writeFileAsync( platConfDir + "/board.conf", JSON.stringify( board.info ) );
+		return BoardInstaller.Install()
+				.then( function()
+				{
+					return fs.writeFileAsync( platConfDir + "/board.conf", JSON.stringify( board.info ) );
+				})
+				.catch( function(err)
+				{
+					console.log( err );
+				})	
 	}
 	else
 	{
@@ -93,12 +99,15 @@ fs.readFileAsync( platConfDir + "/platform.conf", "utf8" )
 			BoardInstaller = require( path.resolve( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms/", platformName, "boards/", board.info.productId, "install/Installer.js" ) );
 		
 			// Uninstall old board files
-			BoardInstaller.Uninstall();
-			
-			// Install new board files
-			BoardInstaller.Install();
-					
-			return fs.writeFileAsync( platConfDir + "/board.conf", JSON.stringify( board.info ) );
+			return BoardInstaller.Uninstall()
+			.then( function()
+			{
+				return BoardInstaller.Install();
+			})
+			.then( function()
+			{
+				return fs.writeFileAsync( platConfDir + "/board.conf", JSON.stringify( board.info ) );
+			});
 		}
 	}
 } )
