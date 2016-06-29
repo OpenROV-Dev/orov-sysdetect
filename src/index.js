@@ -12,7 +12,7 @@ var board			= {};
 var board_conf		= {};
 
 var LoadBoardInfo	= {};
-var BoardInstaller	= {};
+var Installer		= require( "/opt/openrov/cockpit/src/lib/Installer.js" );
 
 fs.readFileAsync( platConfDir + "/platform.conf", "utf8" )
 .then( function( data )
@@ -62,18 +62,16 @@ fs.readFileAsync( platConfDir + "/platform.conf", "utf8" )
 	if( board.info.productId == "" )
 	{
 		// No supported board detected. Nothing more to do. Cockpit will end up loading without a board interface.
-		console.log( "No physical board detected. Exiting." );
-		process.exit( 0 );
+		console.log( "No physical board detected." );
 	}
 	else if( board_conf.productId == "" )
 	{
 		console.log( "Installing board for first time." );
-		
-		// Board present, but not installed. Fetch install module
-		BoardInstaller = require( path.resolve( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms/", platformName, "boards/", board.info.productId, "install/Installer.js" ) );
+					
+		var installDir = path.join( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms", platformName, "boards", board.info.productId, "install" );
 		
 		// Install board files
-		return BoardInstaller.Install()
+		return Installer.Install( installDir )
 				.then( function()
 				{
 					return fs.writeFileAsync( platConfDir + "/board.conf", JSON.stringify( board.info ) );
@@ -89,20 +87,18 @@ fs.readFileAsync( platConfDir + "/platform.conf", "utf8" )
 		{
 			// Board already installed
 			console.log( "Board already installed." );
-			process.exit( 0 );
 		}
 		else
 		{
 			console.log( "Different board type or revision is installed" );
 			
-			// Different board type or revision is installed. Fetch install module
-			BoardInstaller = require( path.resolve( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms/", platformName, "boards/", board.info.productId, "install/Installer.js" ) );
-		
+			var installDir = path.join( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms", platformName, "boards", board.info.productId, "install" );
+			
 			// Uninstall old board files
-			return BoardInstaller.Uninstall()
+			return Installer.Uninstall( installDir )
 			.then( function()
 			{
-				return BoardInstaller.Install();
+				return Installer.Install( installDir );
 			})
 			.then( function()
 			{
