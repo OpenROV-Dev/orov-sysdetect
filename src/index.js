@@ -15,7 +15,7 @@ var board_conf		= {};
 var LoadBoardInfo	= {};
 var Installer		= require( "/opt/openrov/cockpit/src/lib/Installer.js" );
 
-fs.readFileAsync( platConfDir + "/platform.conf", "utf8" )
+fs.readFileAsync( platConfDir + "/platform.conf" )
 .then( function( data )
 {
 	// Parse platform info from configuration file
