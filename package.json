@@ -30,6 +30,8 @@
     "mkdirp": "",
     "ncp": "^2.0.0",
     "rimraf": "^2.5.1",
-    "bluebird": "^3.4.1"
+    "bluebird": "^3.4.1",
+    "fs-extra": "^0.30.0",
+    "child-process-promise": "^2.0.3"
   }
 }
