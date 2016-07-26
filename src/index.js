@@ -122,7 +122,14 @@ fs.readFileAsync( platConfDir + "/platform.conf" )
 								console.log( "Rebooting!" );
 
 								// Reboot
-								exec( "/sbin/reboot", function(error, stdout, stderr){} );
+								exec( "/sbin/reboot", function(error, stdout, stderr)
+								{
+									if( error )
+									{
+										console.log( "Error rebooting!" );
+										console.log( stderr );
+									}
+								} );
 							}
 							else
 							{
