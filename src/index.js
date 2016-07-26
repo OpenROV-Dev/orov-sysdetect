@@ -102,7 +102,7 @@ fs.readFileAsync( platConfDir + "/platform.conf" )
 			console.log( "Different board type or revision is installed" );
 			
 			var installDir = path.join( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms", platformName, "boards", board.info.productId, "install" );
-			
+
 			// Uninstall old board files
 			return Installer.Uninstall( installDir )
 			.then( function()
@@ -111,13 +111,22 @@ fs.readFileAsync( platConfDir + "/platform.conf" )
 			})
 			.then( function()
 			{
+				console.log( "Writing board configuration to /opt/openrov/system/config/board.conf" );
+
 				return fs.writeFileAsync( platConfDir + "/board.conf", JSON.stringify( board.info ) )
 						.then( function()
 						{
+							
 							if( process.env.USE_MOCK != "true" )
 							{
+								console.log( "Rebooting!" );
+
 								// Reboot
 								exec( "/sbin/reboot", function(error, stdout, stderr){} );
+							}
+							else
+							{
+								console.log( "Skipping reboot. System is in mock mode." );
 							}
 						});
 			});
