@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-var Promise = require( "bluebird" );
-var fs     	= Promise.promisifyAll( require("fs") );
-var path	= require('path');
-var exec	= require( "child_process" ).exec;
+var Promise 		= require( "bluebird" );
+var fs     			= Promise.promisifyAll( require("fs") );
+var path			= require('path');
+var execFileAsync 	= require('child-process-promise').execFile;
 
 var platConfDir = path.resolve( __dirname + "/../config/" );
 
@@ -80,8 +80,18 @@ fs.readFileAsync( platConfDir + "/platform.conf" )
 							{
 								if( process.env.USE_MOCK != "true" )
 								{
+									console.log( "Rebooting!" );
+
 									// Reboot
-									exec( "/sbin/reboot", function(error, stdout, stderr){} );
+									return execFileAsync( "/sbin/reboot" )
+											.catch( function( err )
+											{
+												console.log( "Error rebooting: " + err.message );
+											});
+								}
+								else
+								{
+									console.log( "Skipping reboot. Mock mode detected." );
 								}
 							});
 				})
@@ -115,25 +125,21 @@ fs.readFileAsync( platConfDir + "/platform.conf" )
 
 				return fs.writeFileAsync( platConfDir + "/board.conf", JSON.stringify( board.info ) )
 						.then( function()
-						{
-							
+						{	
 							if( process.env.USE_MOCK != "true" )
 							{
 								console.log( "Rebooting!" );
 
 								// Reboot
-								exec( "/sbin/reboot", function(error, stdout, stderr)
-								{
-									if( error )
-									{
-										console.log( "Error rebooting!" );
-										console.log( stderr );
-									}
-								} );
+								return execFileAsync( "/sbin/reboot" )
+										.catch( function( err )
+										{
+											console.log( "Error rebooting: " + err.message );
+										});
 							}
 							else
 							{
-								console.log( "Skipping reboot. System is in mock mode." );
+								console.log( "Skipping reboot. Mock mode detected." );
 							}
 						});
 			});
