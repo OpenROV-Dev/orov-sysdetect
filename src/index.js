@@ -9,7 +9,7 @@ var platConfDir = path.resolve( __dirname + "/../config/" );
 
 var platformName 	= "";
 
-var board			= {};
+var board			= { targetBoard: {} };
 var board_conf		= {};
 
 var LoadBoardInfo	= {};
@@ -49,13 +49,13 @@ fs.readFileAsync( platConfDir + "/platform.conf" )
 			.then( function( info )
 			{
 				board_conf.productId 	= info.productId;
-				board_conf.rev			= info.rev;
+				board_conf.boardId		= info.boardId;
 			})
 			.catch( function( err )
 			{
 				// Non-existent or incomplete board info, so just act as if we had none
 				board_conf.productId 	= "";
-				board_conf.rev			= "";
+				board_conf.boardId		= "";
 			} );
 })
 .then( function()
@@ -69,7 +69,7 @@ fs.readFileAsync( platConfDir + "/platform.conf" )
 	{
 		console.log( "Installing board for first time." );
 					
-		var installDir = path.join( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms", platformName, "boards", board.info.productId, "install" );
+		var installDir = path.join( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms", platformName, "boards", board.info.boardId, "install" );
 		
 		// Install board files
 		return Installer.Install( installDir )
@@ -102,16 +102,16 @@ fs.readFileAsync( platConfDir + "/platform.conf" )
 	}
 	else
 	{
-		if( board_conf.productId == board.info.productId && board_conf.rev == board.info.rev )
+		if( board_conf.productId == board.info.productId && board_conf.boardId == board.info.boardId )
 		{
 			// Board already installed
 			console.log( "Board already installed." );
 		}
 		else
 		{
-			console.log( "Different board type or revision is installed" );
+			console.log( "Different product type or board type is installed" );
 			
-			var installDir = path.join( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms", platformName, "boards", board.info.productId, "install" );
+			var installDir = path.join( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms", platformName, "boards", board.info.boardId, "install" );
 
 			// Uninstall old board files
 			return Installer.Uninstall( installDir )
