@@ -9,7 +9,7 @@ var platConfDir = path.resolve( __dirname + "/../config/" );
 
 var platformName 	= "";
 
-var board			= {};
+var board			= { targetBoard: {} };
 var board_conf		= {};
 
 var LoadBoardInfo	= {};
