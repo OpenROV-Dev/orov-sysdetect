@@ -8,11 +8,9 @@ var execFileAsync 	= require('child-process-promise').execFile;
 var platConfDir = path.resolve( __dirname + "/../config/" );
 
 var platformName 	= "";
-
-var board			= { targetBoard: {} };
 var board_conf		= {};
 
-var LoadBoardInfo	= {};
+var BoardInterface	= {};
 var Installer		= require( "/opt/openrov/cockpit/src/lib/Installer.js" );
 
 fs.readFileAsync( platConfDir + "/platform.conf" )
@@ -30,7 +28,7 @@ fs.readFileAsync( platConfDir + "/platform.conf" )
 	return Promise.try( function()
 	{
 		// Fetch board info loading function (Will use specific mechanism for this platform to load board info, like reading EEPROM storage)
-		LoadBoardInfo 	= require( path.resolve( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms/", platformName, "board.js" ) ).LoadInfo;
+		BoardInterface 	= require( path.resolve( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms/", platformName, "board.js" ) );
 	} )
 	.catch( function( err )
 	{
@@ -39,7 +37,7 @@ fs.readFileAsync( platConfDir + "/platform.conf" )
 } )
 .then( function()
 {
-	return LoadBoardInfo( board );
+	return BoardInterface.LoadInfo();
 } )
 .then( function()
 {
@@ -60,7 +58,7 @@ fs.readFileAsync( platConfDir + "/platform.conf" )
 })
 .then( function()
 {
-	if( board.info.productId == "" )
+	if( BoardInterface.board.info.productId == "" )
 	{
 		// No supported board detected. Nothing more to do. Cockpit will end up loading without a board interface.
 		console.log( "No physical board detected." );
@@ -69,13 +67,13 @@ fs.readFileAsync( platConfDir + "/platform.conf" )
 	{
 		console.log( "Installing board for first time." );
 					
-		var installDir = path.join( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms", platformName, "boards", board.info.boardId, "install" );
+		var installDir = path.join( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms", platformName, "boards", BoardInterface.board.info.boardId, "install" );
 		
 		// Install board files
 		return Installer.Install( installDir )
 				.then( function()
 				{
-					return fs.writeFileAsync( platConfDir + "/board.conf", JSON.stringify( board.info ) )
+					return fs.writeFileAsync( platConfDir + "/board.conf", JSON.stringify( BoardInterface.board.info ) )
 							.then( function()
 							{
 								if( process.env.USE_MOCK != "true" )
@@ -102,7 +100,7 @@ fs.readFileAsync( platConfDir + "/platform.conf" )
 	}
 	else
 	{
-		if( board_conf.productId == board.info.productId && board_conf.boardId == board.info.boardId )
+		if( board_conf.productId == BoardInterface.board.info.productId && board_conf.boardId == BoardInterface.board.info.boardId )
 		{
 			// Board already installed
 			console.log( "Board already installed." );
@@ -111,7 +109,7 @@ fs.readFileAsync( platConfDir + "/platform.conf" )
 		{
 			console.log( "Different product type or board type is installed" );
 			
-			var installDir = path.join( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms", platformName, "boards", board.info.boardId, "install" );
+			var installDir = path.join( "/opt/openrov/cockpit/src/system-plugins/platform-manager/platforms", platformName, "boards", BoardInterface.board.info.boardId, "install" );
 
 			// Uninstall old board files
 			return Installer.Uninstall( installDir )
@@ -123,7 +121,7 @@ fs.readFileAsync( platConfDir + "/platform.conf" )
 			{
 				console.log( "Writing board configuration to /opt/openrov/system/config/board.conf" );
 
-				return fs.writeFileAsync( platConfDir + "/board.conf", JSON.stringify( board.info ) )
+				return fs.writeFileAsync( platConfDir + "/board.conf", JSON.stringify( BoardInterface.board.info ) )
 						.then( function()
 						{	
 							if( process.env.USE_MOCK != "true" )
