@@ -10,6 +10,15 @@ var platConfDir = path.resolve( __dirname + "/../config/" );
 var platformName 	= "";
 var board_conf		= {};
 
+// Since this loads libs from cockpit, it also needs to be able to reference the dependencies
+var oldpath = '';
+if (process.env.NODE_PATH !== undefined) {
+  oldpath = process.env.NODE_PATH;
+}
+// Just in case already been set, leave it alone
+process.env.NODE_PATH = '/opt/openrov/cockpit/src/lib:' + oldpath;
+require('module').Module._initPaths();
+
 var BoardInterface	= {};
 var Installer		= require( "/opt/openrov/cockpit/src/lib/Installer.js" );
 
